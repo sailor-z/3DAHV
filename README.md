@@ -3,6 +3,8 @@ PyTorch implementation of "3D-Aware Hypothesis & Verification for Generalizable 
 * [[project page](https://sailor-z.github.io/projects/ICLR2024_3DAHV.html)]
 * [[paper](https://arxiv.org/pdf/2310.03534.pdf)]
 
+The code will be released very soon. Stay tuned.
+
 # Citation
 If you find the project useful, please consider citing:
 ```bibtex
@@ -14,4 +16,3 @@ If you find the project useful, please consider citing:
   }
 }
 ```
-The code will be released very soon. Stay tuned.
