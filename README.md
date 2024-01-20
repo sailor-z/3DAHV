@@ -4,7 +4,7 @@ PyTorch implementation of "3D-Aware Hypothesis & Verification for Generalizable 
 * [[paper](https://arxiv.org/pdf/2310.03534.pdf)]
 
 # Citation
-If you find the code useful, please consider citing:
+If you find the project useful, please consider citing:
 ```bibtex
 @article{zhao20233d,
     title={3D-Aware Hypothesis \& Verification for Generalizable Relative Object Pose Estimation},
