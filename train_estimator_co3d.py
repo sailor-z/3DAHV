@@ -1,5 +1,4 @@
 from types import SimpleNamespace
-import wandb
 import yaml
 import os
 from lightning.pytorch.callbacks import ModelCheckpoint, StochasticWeightAveraging

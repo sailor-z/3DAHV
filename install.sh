@@ -13,17 +13,13 @@ conda install -c conda-forge pyyaml -y
 yes | pip install --upgrade pip
 yes | pip install path
 yes | pip install yaml
-yes | pip install tensorboardX
 yes | pip install imutils
 yes | pip install pandas
 yes | pip install opencv-python
 yes | pip install scikit-image
 yes | pip install timm==0.6.12
 yes | pip install matplotlib
-yes | pip install diffusers transformers scipy ftfy accelerate
 yes | pip install einops
 yes | pip install --upgrade --quiet objaverse
-yes | pip install trimesh
-yes | pip install antialiased-cnns
 yes | pip install lightning
 yes | pip install -U scikit-learn
