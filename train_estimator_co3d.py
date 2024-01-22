@@ -15,9 +15,6 @@ def main(cfg):
     cfg["TRAIN"]["BS"] = 32
     cfg["TRAIN"]["LR"] = 1e-4
 
-    cfg["CO3D"]["CO3D_DIR"] = "/scratch/cvlab/datasets/common/co3d/data"
-    cfg["CO3D"]["CO3D_ANNOTATION_DIR"] = "/scratch/cvlab/datasets/common/co3d/preprocessed"
-
     print(cfg)
 
     checkpoint_callback = ModelCheckpoint(monitor='train_loss', mode='min', dirpath=os.path.join("./models", cfg["RUN_NAME"]), filename='checkpoint_co3d')

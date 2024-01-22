@@ -29,8 +29,8 @@ TRAIN:
 
 OBJAVERSE:
   DATA_PATH: './datasets/Objaverse/'
-  COCO_IMAGE_ROOT: './datasets/Gen6D/data/coco/train2017'
-  COCO_PATH_FILE: './datasets/Gen6D/data/coco/img_path.pkl'
+  COCO_IMAGE_ROOT: './datasets/coco/train2017'
+  COCO_PATH_FILE: './datasets/coco/img_path.pkl'
 
 LINEMOD:
   META_DIR: './datasets/bop_pose_data'

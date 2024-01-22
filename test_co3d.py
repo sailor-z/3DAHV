@@ -16,10 +16,10 @@ import yaml
 from tqdm.auto import tqdm
 from torchvision import transforms
 from pytorch3d.transforms import random_rotations
-from modules.PL_delta_rota_att_mask_tiny_co3d import Estimator
+from modules.model_co3d import Estimator
 from data_loader_co3d import Co3dDataset
 from data_loader_co3d import TEST_CATEGORIES
-from utils import to_cuda, rotate_volume
+from utils import rotate_volume
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
     errors, errors_30, errors_15 = {}, {}, {}
     for i in range(5):
-        error, error_30, error_15, error_hist = evaluate_pairwise(cfg=cfg,
+        error, error_30, error_15 = evaluate_pairwise(cfg=cfg,
             model=model,
             num_frames=args.num_frames,
             print_results=True,
