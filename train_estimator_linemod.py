@@ -7,7 +7,7 @@ from utils import mk_folders
 from modules.model import training_lm, Estimator
 
 def main(cfg):
-    cfg["RUN_NAME"] = 'LINEMOD_3DAHV'
+    cfg["RUN_NAME"] = 'Objaverse_DVMNet'
     cfg["DATA"]["ACC_THR"] = 15
     cfg["DATA"]["NUM_ROTA"] = 9000
     cfg["TRAIN"]["BS"] = 12
