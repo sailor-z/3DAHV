@@ -1,7 +1,6 @@
 import sys
 import numpy as np
 import cv2
-import time
 import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
@@ -11,17 +10,12 @@ import os
 from fastprogress import progress_bar
 import lightning.pytorch as pl
 from pytorch3d.transforms import random_rotations
-from modules.PL_delta_rota_att_mask_tiny import Estimator
-# from modules.PL_delta_rota_att_mask_wo_att_tiny import Estimator
-# from modules.PL_delta_rota_att_mask_tiny_3d import Estimator
-# from modules.PL_delta_rota_att_mask_img_tiny import Estimator
+from modules.model import Estimator
 
 from data_loader import Dataset_Loader_LINEMOD_stereo as Dataset_Loader
 from utils import to_cuda, get_calibration_matrix_K_from_blender, rotate_volume, visualization
 
-# CATEGORY = ["APE", "BENCHVISE", "CAM", "CAN", "CAT", "DRILLER", "DUCK", "EGGBOX", "GLUE", "HOLEPUNCHER", "IRON", "LAMP", "PHONE"]
 CATEGORY_LM = ["CAT", "BENCHVISE", "CAM", "DRILLER", "DUCK"]
-CATEGORY_LM_O = ["CAT", "DRILLER", "DUCK"]
 
 def test_category(cfg, model, clsID):
     K = np.array(cfg["LINEMOD"]["INTERNAL_K"]).reshape(3, 3)
@@ -48,8 +42,6 @@ def test_category(cfg, model, clsID):
 
         codebook = random_rotations(model.num_rota).to(img_src.device)
 
-        # start_time = time.time()
-
         img_feat_src, img_feat_tgt, gt_src_2_tgt_R, gt_tgt_2_src_R = model(img_src, mask_src, R_src, img_tgt, mask_tgt, R_tgt)
 
         B, C, D, H, W = img_feat_src.shape
@@ -70,40 +62,15 @@ def test_category(cfg, model, clsID):
         pred_index = torch.max(pred_sim, dim=1)[1]
         pred_src_2_tgt_R = codebook[pred_index]
 
-        # print("Time consumption:", time.time() - start_time)
-
         ### geo_dis
         sim = (torch.sum(pred_src_2_tgt_R.view(-1, 9) * gt_src_2_tgt_R.view(-1, 9), dim=-1).clamp(-1, 3) - 1) / 2
         geo_dis = torch.arccos(sim) * 180. / np.pi
-
-        # ### detailed result
-        # if geo_dis < 10:
-        #     sim = (torch.sum(codebook.view(-1, 9) * gt_src_2_tgt_R.view(-1, 9), dim=-1).clamp(-1, 3) - 1) / 2
-        #     geo_dis = torch.arccos(sim) * 180. / np.pi
-        #
-        #     np.savetxt('./visualization/geo_dis.txt', geo_dis.cpu().detach().numpy())
-        #     np.savetxt('./visualization/pred_sim.txt', pred_sim[0].cpu().detach().numpy())
-        #     exit()
-
-
 
         pred_errs.append(geo_dis)
 
         pbar.comment = "Error: %.2f" % (geo_dis.mean().item())
 
         pred_Rs.append(pred_src_2_tgt_R.cpu().detach().numpy().reshape(-1))
-
-        ### viz
-        viz = False
-        if viz and idx % 30 == 0:
-            out_dir = os.path.join("./models", cfg["RUN_NAME"], "visual", "linemod")
-            if not os.path.exists(out_dir):
-                os.makedirs(out_dir)
-            img_src, img_tgt, viz = visualization(cfg, img_src, img_tgt, pred_src_2_tgt_R, R_src, R_tgt, T_tgt, crop_params_tgt, K, bbox_3d)
-
-            cv2.imwrite(os.path.join(out_dir, "%02d_%04d_query.png" % (clsID, idx)), img_tgt)
-            cv2.imwrite(os.path.join(out_dir, "%02d_%04d_support.png" % (clsID, idx)), img_src)
-            cv2.imwrite(os.path.join(out_dir, "%02d_%04d_%.2f.png" % (clsID, idx, geo_dis.mean().item())), viz)
 
     pred_err = torch.cat(pred_errs)
 
@@ -119,32 +86,18 @@ def test_category(cfg, model, clsID):
     return pred_err, pred_acc_30, pred_acc_15
 
 def main(cfg):
-    cfg["RUN_NAME"] = 'Objaverse_delta_rota_att_mask' #'Co3d_delta_rota_att_mask' #
+    cfg["RUN_NAME"] = 'LINEMOD_3DAHV'
     cfg["DATA"]["OBJ_SIZE"] = 256
     cfg["DATA"]["BG"] = True
     cfg["DATA"]["NUM_ROTA"] = 50000
 
-    ##LINEMOD
-    cfg["LINEMOD"]["OCC"] = False
-    # ##LINEMOD-O
-    # cfg["LINEMOD"]["OCC"] = True
-
     print(cfg)
 
-    if cfg["LINEMOD"]["OCC"] == False:
-        filename = "checkpoint_lm.ckpt"
-        CATEGORY = CATEGORY_LM
-    else:
-        filename = "checkpoint_lm_occ.ckpt"
-        CATEGORY = CATEGORY_LM_O
-
-    checkpoint_path = os.path.join("./models", cfg["RUN_NAME"], filename)
-    # checkpoint_path = os.path.join("./models", cfg["RUN_NAME"], 'checkpoint_lm_200.ckpt')
-    # checkpoint_path = os.path.join("./models", cfg["RUN_NAME"], 'checkpoint_objaverse.ckpt')
+    checkpoint_path = os.path.join("./models", cfg["RUN_NAME"], "checkpoint_lm.ckpt")
 
     if os.path.exists(checkpoint_path):
         print("Loading the pretrained model from " + checkpoint_path)
-        model = Estimator.load_from_checkpoint(checkpoint_path, cfg=cfg, img_size=cfg["DATA"]["OBJ_SIZE"])
+        model = Estimator.load_from_checkpoint(checkpoint_path)
         model.eval()
     else:
         raise RuntimeError("Pretrained model cannot be not found, please check")
@@ -179,15 +132,3 @@ if __name__ == '__main__':
     load_f.close()
 
     main(cfg)
-
-    # for num in [1000, 2000, 5000, 10000, 20000, 30000, 40000, 50000]:
-    #     print("Runing experiments with the number of sampling as:", num)
-    #     cfg["DATA"]["NUM_ROTA"] = num
-    #     main(cfg)
-
-    # # ### robust to noise
-    # cfg["DATA"]["JITTER"] = True
-    # for noise in [0.05, 0.1, 0.15, 0.2, 0.25, 0.3]:
-    #     print("Runing experiments with a noise level of:", noise)
-    #     cfg["DATA"]["NOISE_LEVEL"] = noise
-    #     main(cfg)
