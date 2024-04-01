@@ -393,15 +393,11 @@ class Dataset_Loader_Objaverse_stereo_test(data.Dataset):
 class Dataset_Loader_LINEMOD_stereo(data.Dataset):
     def __init__(self, cfg, clsID, transform=None):
         self.cfg = cfg
-        self.occluded = cfg["LINEMOD"]["OCC"]
 
         self.jitter_scale = (1.0 / (1.0 + cfg["DATA"]["NOISE_LEVEL"]), 1.0 * (1.0 + cfg["DATA"]["NOISE_LEVEL"]))
         self.jitter_trans = (-0.5 * cfg["DATA"]["NOISE_LEVEL"], 0.5 * cfg["DATA"]["NOISE_LEVEL"])
 
-        if self.occluded is False:
-            self.src_path = os.path.join(self.cfg['LINEMOD']['META_DIR'], 'src_images_test_pkl', '%06d.pkl' % (clsID))
-        else:
-            self.src_path = os.path.join(self.cfg['LINEMOD']['META_DIR'], 'src_images_occ_LINEMOD_pkl', '%06d.pkl' % (clsID))
+        self.src_path = os.path.join(self.cfg['LINEMOD']['META_DIR'], 'src_images_test_pkl', '%06d.pkl' % (clsID))
 
         if transform is None:
             self.trans = transforms.Compose(
@@ -496,8 +492,6 @@ class Dataset_Loader_LINEMOD_stereo(data.Dataset):
 class Dataset_Loader_LINEMOD_stereo_train(data.Dataset):
     def __init__(self, cfg, clsIDs, transform=None):
         self.cfg = cfg
-        self.occluded = cfg["LINEMOD"]["OCC"]
-
         self.erasing = transforms.RandomErasing(p=0.5, scale=(0.02, 0.7), ratio=(0.5, 2), value="random")
 
         self.src_path = [os.path.join(self.cfg['LINEMOD']['META_DIR'], 'src_images_test_pkl', '%06d.pkl' % (clsID)) for clsID in clsIDs]
@@ -573,9 +567,6 @@ class Dataset_Loader_LINEMOD_stereo_train(data.Dataset):
 
         img = self.trans(img)
         mask = torch.from_numpy(mask).float()[None]
-
-        if self.occluded is True:
-            img = self.erasing(img)
 
         if self.cfg["DATA"]["OBJ_SIZE"] is not None:
             img = resize_pad(img, self.cfg["DATA"]["OBJ_SIZE"], transforms.InterpolationMode.BILINEAR)
