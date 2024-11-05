@@ -54,7 +54,7 @@ python ./test_objaverse.py
 
 # Experimentss on LINEMOD
 ## Data Preparation
-Download the [LINEMOD](https://u.pcloud.link/publink/show?code=XZrVD8VZCwypoMMPVA5QF0WeevE3SyyaeR07) dataset. We use the implementation in our [previous work](https://github.com/sailor-z/Unseen_Object_Pose/blob/42d10d4498660882874a36d4797397737857d0ac/Render/data_generation.py#L227) to preprocess the data.
+Download the [LINEMOD](https://huggingface.co/datasets/Sailorzzcc/LINEMOD/blob/main/linemod.zip) dataset. We use the implementation in our [previous work](https://github.com/sailor-z/Unseen_Object_Pose/blob/42d10d4498660882874a36d4797397737857d0ac/Render/data_generation.py#L227) to preprocess the data.
 
 ## Train model on LINEMOD
 Run the following script to train the model:
